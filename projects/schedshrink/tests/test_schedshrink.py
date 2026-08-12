@@ -75,7 +75,10 @@ def test_cli_json_exposes_minimal_counterexample(capsys):
 
 
 def test_custom_task_steps_preserve_local_order():
-    tasks = (Task("A", (read("x", "v"), write_from("x", "v", 1))), Task("B", (read("x", "v"), write_from("x", "v", 1))))
+    tasks = (
+        Task("A", (read("x", "v"), write_from("x", "v", 1))),
+        Task("B", (read("x", "v"), write_from("x", "v", 1))),
+    )
     for schedule in all_schedules(tasks):
         assert schedule.index("A") < len(schedule)
         assert schedule.count("A") == 2
