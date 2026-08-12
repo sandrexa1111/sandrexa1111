@@ -2,21 +2,24 @@ name: Portfolio Projects
 
 on:
   push:
+    branches: [main]
     paths:
-      - "projects/**"
-      - ".github/workflows/portfolio-projects.yml"
+      - 'projects/effectproof/**'
+      - 'projects/schedshrink/**'
+      - '.github/workflows/portfolio-projects.yml'
   pull_request:
     paths:
-      - "projects/**"
-      - ".github/workflows/portfolio-projects.yml"
+      - 'projects/effectproof/**'
+      - 'projects/schedshrink/**'
+      - '.github/workflows/portfolio-projects.yml'
 
 jobs:
   test:
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         project: [effectproof, schedshrink]
-        python-version: ["3.10", "3.11", "3.12", "3.13"]
-    runs-on: ubuntu-latest
+        python-version: ['3.10', '3.11', '3.12', '3.13']
     defaults:
       run:
         working-directory: projects/${{ matrix.project }}
@@ -28,4 +31,7 @@ jobs:
       - run: pip install -e ".[dev]"
       - run: pytest -q
       - run: ruff check src tests
-      - run: mypy src/${{ matrix.project }}
+      - if: matrix.project == 'effectproof'
+        run: mypy src/effectproof
+      - if: matrix.project == 'schedshrink'
+        run: mypy src/schedshrink
