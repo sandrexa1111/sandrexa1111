@@ -14,18 +14,22 @@ def _load(path: str) -> Any:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(prog="effectproof", description="Verify observable side effects against a contract.")
+    parser = argparse.ArgumentParser(
+        prog="state-delta",
+        description="Verify observable side effects against a contract.",
+    )
     parser.add_argument("before")
     parser.add_argument("after")
     parser.add_argument("contract")
     parser.add_argument("--json", action="store_true", dest="as_json")
     args = parser.parse_args(argv)
 
-    report = verify(_load(args.before), _load(args.after), EffectContract.from_dict(_load(args.contract)))
+    contract = EffectContract.from_dict(_load(args.contract))
+    report = verify(_load(args.before), _load(args.after), contract)
     if args.as_json:
         print(json.dumps(report.to_dict(), indent=2, sort_keys=True))
     else:
-        print(f"EFFECT VERDICT: {report.verdict.value}")
+        print(f"STATE DELTA VERDICT: {report.verdict.value}")
         print(f"proof_id: {report.proof_id[:16]}")
         print(f"changes: {len(report.changes)}")
         for change in report.unexpected:
