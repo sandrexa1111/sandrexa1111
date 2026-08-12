@@ -6,12 +6,22 @@ from effectproof.cli import main
 
 def calendar_states():
     before = {
-        "event": {"id": "e-7", "title": "Planning", "room": "A", "attendees": ["ana", "gio"]},
+        "event": {
+            "id": "e-7",
+            "title": "Planning",
+            "room": "A",
+            "attendees": ["ana", "gio"],
+        },
         "permissions": {"guest_can_invite": False},
         "audit": {"updated_by": None},
     }
     after = {
-        "event": {"id": "e-7", "title": "Planning - Q3", "room": "A", "attendees": ["ana", "gio"]},
+        "event": {
+            "id": "e-7",
+            "title": "Planning - Q3",
+            "room": "A",
+            "attendees": ["ana", "gio"],
+        },
         "permissions": {"guest_can_invite": False},
         "audit": {"updated_by": "agent-17"},
     }
@@ -28,7 +38,10 @@ def test_allowed_effect_and_required_postcondition_verify():
     contract = EffectContract(
         allowed=("/event/title", "/audit/updated_by"),
         forbidden=("/permissions/*",),
-        required=(Rule("equals", "/event/title", "Planning - Q3"), Rule("unchanged", "/event/attendees")),
+        required=(
+            Rule("equals", "/event/title", "Planning - Q3"),
+            Rule("unchanged", "/event/attendees"),
+        ),
     )
     report = verify(before, after, contract)
     assert report.verdict is Verdict.VERIFIED
@@ -53,7 +66,10 @@ def test_unexpected_side_effect_fails_even_if_requested_change_succeeds():
 def test_delta_rule():
     before = {"invoice": {"balance": 100}}
     after = {"invoice": {"balance": 70}}
-    contract = EffectContract(allowed=("/invoice/balance",), required=(Rule("delta", "/invoice/balance", -30),))
+    contract = EffectContract(
+        allowed=("/invoice/balance",),
+        required=(Rule("delta", "/invoice/balance", -30),),
+    )
     assert verify(before, after, contract).verdict is Verdict.VERIFIED
 
 
@@ -65,7 +81,9 @@ def test_missing_required_path_fails():
 
 def test_proof_id_is_order_independent_for_json_objects():
     contract = EffectContract(allowed=("/x",))
-    assert proof_id({"a": 1, "b": 2}, {"x": 3}, contract) == proof_id({"b": 2, "a": 1}, {"x": 3}, contract)
+    first = proof_id({"a": 1, "b": 2}, {"x": 3}, contract)
+    second = proof_id({"b": 2, "a": 1}, {"x": 3}, contract)
+    assert first == second
 
 
 def test_cli_returns_failure_and_json(tmp_path, capsys):
