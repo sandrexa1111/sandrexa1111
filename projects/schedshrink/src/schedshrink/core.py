@@ -113,7 +113,11 @@ def execute(scenario: Scenario, schedule: Sequence[str]) -> Execution:
             )
         )
 
-    unfinished = {name: len(tasks[name].steps) - pos for name, pos in positions.items() if pos != len(tasks[name].steps)}
+    unfinished = {
+        name: len(tasks[name].steps) - pos
+        for name, pos in positions.items()
+        if pos != len(tasks[name].steps)
+    }
     if unfinished:
         raise ValueError(f"schedule is incomplete: {unfinished}")
 
@@ -177,6 +181,9 @@ def atomic_increment_scenario() -> Scenario:
     return Scenario(
         name="atomic-increment",
         initial={"counter": 0},
-        tasks=(Task("A", (add_atomic("counter", 1),)), Task("B", (add_atomic("counter", 1),))),
+        tasks=(
+            Task("A", (add_atomic("counter", 1),)),
+            Task("B", (add_atomic("counter", 1),)),
+        ),
         invariant=lambda state: state["counter"] == 2,
     )
