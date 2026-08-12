@@ -20,19 +20,19 @@ Evidence-based verification for repository patches.
 
 **Python · 72 tests · adversarial patch corpus · strict mypy · CI**
 
-### [state-delta](./projects/effectproof)
-Deterministic verification of observable side effects.
+### [state-delta](https://github.com/sandrexa1111/state-delta)
+Deterministic verification of observable state changes.
 
-`state-delta` compares state before and after an operation and checks the delta against explicit allow/forbid rules and postconditions. The included calendar example catches a permission mutation even though the requested title change succeeded.
+`state-delta` compares JSON state before and after an operation and checks the resulting changes against explicit allow/forbid rules and postconditions. The included example catches a permission mutation even though the requested title change succeeds.
 
-**Python · zero runtime dependencies · 7 tests · stable proof IDs**
+**Python · zero runtime dependencies · 7 tests · strict mypy · Python 3.10–3.13 CI**
 
-### [interleaving-lab](./projects/schedshrink)
+### [interleaving-lab](https://github.com/sandrexa1111/interleaving-lab)
 Deterministic exploration of small concurrency failures.
 
-`interleaving-lab` enumerates legal cooperative task interleavings, evaluates an invariant, and returns the failing full schedule with the fewest context switches. Its lost-update example explores all six legal schedules and isolates a two-switch failure.
+`interleaving-lab` enumerates legal cooperative task interleavings, evaluates an invariant, and reports the failing schedule with the fewest context switches. Its lost-update example explores all six legal schedules and isolates a two-switch failure with a replayable state trace.
 
-**Python · zero runtime dependencies · 10 tests · deterministic replay traces**
+**Python · zero runtime dependencies · 10 tests · strict mypy · Python 3.10–3.13 CI**
 
 ## Other work
 
