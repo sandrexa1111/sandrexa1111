@@ -132,7 +132,10 @@ def _matches(path: str, patterns: Iterable[str]) -> bool:
 def _parts(path: str) -> list[str]:
     if path in {"", "/"}:
         return []
-    return [part.replace("~1", "/").replace("~0", "~") for part in path.lstrip("/").split("/")]
+    return [
+        part.replace("~1", "/").replace("~0", "~")
+        for part in path.lstrip("/").split("/")
+    ]
 
 
 _MISSING = object()
@@ -161,7 +164,8 @@ def _check_rule(rule: Rule, before: JSON, after: JSON) -> RuleResult:
 
     if rule.kind == "equals":
         passed = current is not _MISSING and current == rule.value
-        return RuleResult(rule, passed, f"after={current!r}" if current is not _MISSING else "path missing")
+        detail = f"after={current!r}" if current is not _MISSING else "path missing"
+        return RuleResult(rule, passed, detail)
     if rule.kind == "exists":
         passed = current is not _MISSING
         return RuleResult(rule, passed, "exists" if passed else "path missing")
@@ -181,7 +185,13 @@ def _check_rule(rule: Rule, before: JSON, after: JSON) -> RuleResult:
 
 
 def _canonical(value: JSON) -> bytes:
-    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    serialized = json.dumps(
+        value,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+    )
+    return serialized.encode("utf-8")
 
 
 def proof_id(before: JSON, after: JSON, contract: EffectContract) -> str:
