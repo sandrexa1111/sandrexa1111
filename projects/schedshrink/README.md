@@ -1,79 +1,42 @@
-# SchedShrink
+# interleaving-lab
 
-Deterministic concurrency schedule exploration for small, explicit state machines.
+A deterministic playground for reproducing small concurrency failures by exploring legal cooperative task schedules.
 
-SchedShrink enumerates legal interleavings while preserving each task's local order, replays every schedule against an invariant, and returns the failing interleaving with the fewest context switches.
+The repository path is still `schedshrink` for compatibility, but the project name is **interleaving-lab**.
 
-The goal is not to replace production race detectors. It is to make a concurrency failure **small, replayable, and explainable** once a problem can be represented as cooperative steps.
+## What it does
 
-> **Status:** experimental `v0.1.0`, zero runtime dependencies.
+`interleaving-lab`:
 
-## Lost-update demo
+- enumerates legal task interleavings while preserving each task's local order
+- executes each schedule against shared state
+- evaluates a user-defined invariant
+- records a replayable execution trace
+- returns a failing schedule with the fewest context switches
 
-Two workers both implement `counter += 1` as a read followed by a write.
+The included lost-update example explores all six legal schedules for two read/write workers and isolates a small failing interleaving.
 
-```bash
-pip install -e .
-schedshrink lost-update
-```
-
-Example output:
-
-```text
-scenario: lost-update
-schedules explored: 6
-failing schedules: 4
-minimal failing schedule: A B B A
-context switches: 2
-final state: {'counter': 1}
-```
-
-The sequential schedules pass. SchedShrink finds the smallest-preemption counterexample that loses an update and emits the state after every step.
-
-Compare with an atomic increment:
+## Install
 
 ```bash
-schedshrink atomic-increment
+cd projects/schedshrink
+python -m pip install -e ".[dev]"
 ```
 
-No failing schedules are found.
+## Run
 
-## Python API
-
-```python
-from schedshrink import Scenario, Task, explore, read, write_from
-
-worker_a = Task("A", (read("counter", "seen"), write_from("counter", "seen", add=1)))
-worker_b = Task("B", (read("counter", "seen"), write_from("counter", "seen", add=1)))
-
-scenario = Scenario(
-    initial={"counter": 0},
-    tasks=(worker_a, worker_b),
-    invariant=lambda state: state["counter"] == 2,
-)
-
-result = explore(scenario)
-print(result.minimal.schedule)
+```bash
+interleaving-lab lost-update
 ```
-
-## Scope and limitations
-
-- Cooperative explicit steps, not arbitrary Python thread instrumentation.
-- Exhaustive enumeration grows combinatorially; v0.1 is intended for small scenarios.
-- “Minimal” currently means the failing full schedule with the fewest context switches; steps are not deleted from the program.
-- It finds counterexamples to the invariant you provide. An omitted invariant cannot be inferred.
-
-Those limits are deliberate: the first release keeps the scheduler deterministic and the claims checkable.
 
 ## Development
 
 ```bash
-pip install -e ".[dev]"
 pytest -q
 ruff check src tests
 mypy src/schedshrink
 ```
 
-## License
+## Scope
 
-Apache-2.0.
+This is cooperative schedule exploration for small modeled systems. It does not instrument arbitrary OS threads or claim exhaustive coverage of production concurrency behavior.

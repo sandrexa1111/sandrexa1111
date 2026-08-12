@@ -1,67 +1,46 @@
-# EffectProof
+# state-delta
 
-Deterministic verification for **observable side effects**.
+A small deterministic tool for checking **observable state changes** against an explicit contract.
 
-A tool call returning `200 OK` does not prove that only the intended state changed. EffectProof compares state before and after an operation, checks the delta against an explicit contract, and returns a reproducible verdict.
+The repository path is still `effectproof` for compatibility, but the project name is **state-delta**.
 
-It is useful for agent tools, API workflows, automation, migration scripts, or any system where “success” is weaker than “the correct effects occurred.” No model is required.
+## What it does
 
-> **Status:** experimental `v0.1.0`, zero runtime dependencies.
+Given a state before an operation, a state after it, and an effect contract, `state-delta` reports:
+
+- changed fields
+- unexpected mutations
+- forbidden mutations
+- required postcondition failures
+- a stable proof ID for the exact inputs
+
+It does not use a model in the verification path.
 
 ## Example
 
-A calendar action is supposed to rename one event and write an audit field. It succeeds, but also changes a guest permission.
+The included calendar fixture models an operation that successfully renames an event but also changes a guest-permission field that was not allowed to change. `state-delta` catches the extra mutation.
+
+## Install
 
 ```bash
-pip install -e .
-effectproof examples/before.json examples/after.json examples/contract.json
+cd projects/effectproof
+python -m pip install -e ".[dev]"
 ```
 
-Output:
+## Run
 
-```text
-EFFECT VERDICT: FAILED
-changes: 3
-UNEXPECTED  /permissions/guest_can_invite: False -> True
-FORBIDDEN   /permissions/guest_can_invite: False -> True
-PASS equals     /event/title
-PASS unchanged  /event/attendees
+```bash
+state-delta examples/calendar/before.json examples/calendar/after.json examples/calendar/contract.json
 ```
-
-## Contract
-
-```json
-{
-  "allowed": ["/event/title", "/audit/updated_by"],
-  "forbidden": ["/permissions/*"],
-  "required": [
-    {"kind": "equals", "path": "/event/title", "value": "Planning - Q3"},
-    {"kind": "unchanged", "path": "/event/attendees"}
-  ]
-}
-```
-
-Current rule kinds: `equals`, `exists`, `not_exists`, `unchanged`, and numeric `delta`.
-
-## Design
-
-1. Recursively diff two JSON-compatible state snapshots.
-2. Express every changed leaf as a JSON Pointer-like path.
-3. Match changes against allowed and forbidden path patterns.
-4. Evaluate deterministic postconditions and preserved-state rules.
-5. Hash the canonical inputs into a stable `proof_id`.
-
-EffectProof does **not** claim to prove semantic correctness. It verifies the observable state and rules you gave it; omitted state cannot be checked.
 
 ## Development
 
 ```bash
-pip install -e ".[dev]"
 pytest -q
 ruff check src tests
 mypy src/effectproof
 ```
 
-## License
+## Scope
 
-Apache-2.0.
+`state-delta` verifies declared observable state transitions. It does not prove arbitrary semantic correctness, infer missing specifications, or inspect hidden provider state.
