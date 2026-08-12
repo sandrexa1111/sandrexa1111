@@ -3,9 +3,10 @@ from __future__ import annotations
 import fnmatch
 import hashlib
 import json
+from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Iterable
+from typing import Any
 
 JSON = Any
 
@@ -29,7 +30,7 @@ class Rule:
     value: JSON = None
 
     @classmethod
-    def from_dict(cls, data: dict[str, JSON]) -> "Rule":
+    def from_dict(cls, data: dict[str, JSON]) -> Rule:
         return cls(kind=str(data["kind"]), path=str(data["path"]), value=data.get("value"))
 
 
@@ -40,7 +41,7 @@ class EffectContract:
     required: tuple[Rule, ...] = ()
 
     @classmethod
-    def from_dict(cls, data: dict[str, JSON]) -> "EffectContract":
+    def from_dict(cls, data: dict[str, JSON]) -> EffectContract:
         return cls(
             allowed=tuple(str(x) for x in data.get("allowed", [])),
             forbidden=tuple(str(x) for x in data.get("forbidden", [])),

@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Callable, Iterable, Iterator, Mapping, MutableMapping, Sequence
 from dataclasses import dataclass
-from typing import Callable, Iterable, Iterator, Mapping, MutableMapping, Sequence
 
 State = MutableMapping[str, int]
 Locals = MutableMapping[str, int]
@@ -49,7 +49,7 @@ class Execution:
 
     @property
     def context_switches(self) -> int:
-        return sum(a != b for a, b in zip(self.schedule, self.schedule[1:]))
+        return sum(a != b for a, b in zip(self.schedule, self.schedule[1:], strict=False))
 
     @property
     def schedule_id(self) -> str:
