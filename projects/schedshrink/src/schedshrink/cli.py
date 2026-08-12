@@ -35,12 +35,22 @@ def _result_dict(result: Exploration) -> dict[str, Any]:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(prog="schedshrink", description="Explore deterministic cooperative schedules and minimize failing interleavings.")
+    parser = argparse.ArgumentParser(
+        prog="interleaving-lab",
+        description=(
+            "Explore deterministic cooperative schedules and minimize "
+            "failing interleavings."
+        ),
+    )
     parser.add_argument("scenario", choices=["lost-update", "atomic-increment"])
     parser.add_argument("--json", action="store_true", dest="as_json")
     args = parser.parse_args(argv)
 
-    scenario = lost_update_scenario() if args.scenario == "lost-update" else atomic_increment_scenario()
+    if args.scenario == "lost-update":
+        scenario = lost_update_scenario()
+    else:
+        scenario = atomic_increment_scenario()
+
     result = explore(scenario)
     payload = _result_dict(result)
     if args.as_json:
@@ -57,7 +67,12 @@ def main(argv: list[str] | None = None) -> int:
             print(f"context switches: {minimal.context_switches}")
             print(f"final state: {dict(minimal.final_state)}")
             for entry in minimal.trace:
-                print(f"  {entry.index}: {entry.task} | {entry.step} | shared={dict(entry.shared)} local={dict(entry.local)}")
+                shared = dict(entry.shared)
+                local = dict(entry.local)
+                print(
+                    f"  {entry.index}: {entry.task} | {entry.step} | "
+                    f"shared={shared} local={local}"
+                )
     return 1 if result.minimal is not None else 0
 
 
