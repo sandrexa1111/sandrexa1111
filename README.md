@@ -20,6 +20,20 @@ PatchProof compares a repository before and after a candidate patch, attributes 
 
 **Python · 72 tests · adversarial patch corpus · strict mypy · CI**
 
+### [EffectProof](./projects/effectproof)
+Deterministic verification of observable side effects.
+
+EffectProof compares state before and after an operation and checks the delta against explicit allow/forbid rules and postconditions. The included calendar example catches a permission mutation even though the requested title change succeeded.
+
+**Python · zero runtime dependencies · 7 tests · stable proof IDs**
+
+### [SchedShrink](./projects/schedshrink)
+Small, reproducible counterexamples for concurrency failures.
+
+SchedShrink enumerates legal cooperative task interleavings, evaluates an invariant, and returns the failing full schedule with the fewest context switches. Its lost-update example explores all six legal schedules and isolates a two-switch failure.
+
+**Python · zero runtime dependencies · 10 tests · deterministic replay traces**
+
 ## Other work
 
 - **ThreatVeil** — personal AI security and governance project exploring execution risk, policy controls, and failure visibility.

@@ -1,0 +1,31 @@
+name: Portfolio Projects
+
+on:
+  push:
+    paths:
+      - "projects/**"
+      - ".github/workflows/portfolio-projects.yml"
+  pull_request:
+    paths:
+      - "projects/**"
+      - ".github/workflows/portfolio-projects.yml"
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        project: [effectproof, schedshrink]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: projects/${{ matrix.project }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: pip install -e ".[dev]"
+      - run: pytest -q
+      - run: ruff check src tests
+      - run: mypy src/${{ matrix.project }}
